@@ -2,7 +2,7 @@ USE albums_db;
 
 describe albums;
 
-select *
+select name
 from albums
 where artist = 'Pink Floyd';
 
