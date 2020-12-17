@@ -20,15 +20,18 @@ where release_date between 1990 and 1999;
 
 select name
 from albums
+where release_date like '199%';
+
+select name
+from albums
 where sales < 20;
 
-select name 
+select name, genre  
 from albums
 where genre = 'rock';
 # Not all rock genres are showing because the query above is looking for "rock" as the entire string."
 
 # The string below will add all rock genres
-select name 
+select name, genre
 from albums
 where genre LIKE '%rock%';
-
