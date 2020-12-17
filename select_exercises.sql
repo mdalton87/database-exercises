@@ -25,7 +25,9 @@ where sales < 20;
 select name 
 from albums
 where genre = 'rock';
+# Not all rock genres are showing because the query above is looking for "rock" as the entire string."
 
+# The string below will add all rock genres
 select name 
 from albums
 where genre LIKE '%rock%';
