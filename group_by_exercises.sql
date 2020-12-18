@@ -45,7 +45,7 @@ where first_name in ('Irena','Vidya','Maya')
 group by gender;
 
 # 8. Using your query that generates a username for all of the employees, generate a count employees for each unique username. Are there any duplicate usernames? BONUS: How many duplicate usernames are there?
-
+# 285872 results,  13251 duplicate usernames
 select 
 	lower(
 		concat(
@@ -54,7 +54,9 @@ select
 			"_",
 			substr(birth_date, 6, 2),
 			substr(birth_date, 3, 2)
-		)) as username, count(*)
+		)) as username, 
+	count(*)
 from employees
 group by username
-order by count(*) desc;
+having (count(username) > 1);
+
