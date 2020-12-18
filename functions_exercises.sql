@@ -204,13 +204,16 @@ Below is an example of what the first 10 rows will look like:
 */
 select lower(
 	concat(
-		substr(first_name, 1, 1),substr(last_name, 1, 4),"_",substr(birth_date, 6, 2),substr(birth_date, 3, 2))
+		substr(first_name, 1, 1),
+        substr(last_name, 1, 4),
+        "_",
+        substr(birth_date, 6, 2),
+        substr(birth_date, 3, 2))
         ) as 'Username', 
         first_name, 
         last_name, 
         birth_date
-from employees
-limit 10;
+from employees;
 /* 
 gface_0953	Georgi	Facello	1953-09-02
 bsimm_0664	Bezalel	Simmel	1964-06-02
