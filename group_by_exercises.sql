@@ -60,3 +60,11 @@ from employees
 group by username
 having (count(username) > 1);
 
+SELECT DISTINCT
+		LOWER
+		(CONCAT
+		(SUBSTR(first_name,1,1),substr(last_name,1,4),"_",substr(birth_date,6,2),substr(birth_date,3,2)))
+	AS username, first_name, last_name, birth_date, COUNT(*)
+FROM employees
+GROUP BY username, first_name, last_name, birth_date
+ORDER BY count(*) desc
