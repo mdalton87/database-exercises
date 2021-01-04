@@ -58,13 +58,24 @@ select
 	count(*)
 from employees
 group by username
-having (count(username) > 1);
+having (count(*) > 1);
 
-SELECT DISTINCT
-		LOWER
-		(CONCAT
-		(SUBSTR(first_name,1,1),substr(last_name,1,4),"_",substr(birth_date,6,2),substr(birth_date,3,2)))
-	AS username, first_name, last_name, birth_date, COUNT(*)
-FROM employees
-GROUP BY username, first_name, last_name, birth_date
-ORDER BY count(*) desc
+
+
+SELECT
+	COUNT(t.number_of_duplicates) AS unique_duplicate_usernames,
+	SUM(t.number_of_duplicates) AS number_of_duplicate_usernames
+FROM (SELECT 
+		LOWER(
+				CONCAT(
+					SUBSTR(first_name, 1, 1),
+					SUBSTR(last_name, 1, 4),
+					'_',
+					SUBSTR(birth_date, 6, 2),
+					SUBSTR(birth_date, 3, 2)
+					)
+				) AS username,
+		COUNT(*) AS number_of_duplicates
+		FROM employees
+		GROUP BY username
+		HAVING number_of_duplicates > 1) as t;

@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ContentFilters</key>
+	<dict/>
+	<key>auto_connect</key>
+	<true/>
+	<key>data</key>
+	<dict>
+		<key>connection</key>
+		<dict>
+			<key>database</key>
+			<string>employees</string>
+			<key>host</key>
+			<string>157.230.209.171</string>
+			<key>kcid</key>
+			<string>-7374821873048313208</string>
+			<key>name</key>
+			<string>Codeup</string>
+			<key>rdbms_type</key>
+			<string>mysql</string>
+			<key>sslCACertFileLocation</key>
+			<string></string>
+			<key>sslCACertFileLocationEnabled</key>
+			<integer>0</integer>
+			<key>sslCertificateFileLocation</key>
+			<string></string>
+			<key>sslCertificateFileLocationEnabled</key>
+			<integer>0</integer>
+			<key>sslKeyFileLocation</key>
+			<string></string>
+			<key>sslKeyFileLocationEnabled</key>
+			<integer>0</integer>
+			<key>type</key>
+			<string>SPTCPIPConnection</string>
+			<key>useSSL</key>
+			<integer>0</integer>
+			<key>user</key>
+			<string>easley_1262</string>
+		</dict>
+		<key>session</key>
+		<dict>
+			<key>connectionEncoding</key>
+			<string>latin1</string>
+			<key>contentFilter</key>
+			<dict/>
+			<key>contentPageNumber</key>
+			<integer>1</integer>
+			<key>contentSelection</key>
+			<data>
+			YnBsaXN0MDDUAQIDBAUGBwpYJHZlcnNpb25ZJGFyY2hpdmVyVCR0
+			b3BYJG9iamVjdHMSAAGGoF8QD05TS2V5ZWRBcmNoaXZlctEICVRk
+			YXRhgAGvEA8LDBkaGxwdISguMjc6PUJVJG51bGzTDQ4PEBQYV05T
+			LmtleXNaTlMub2JqZWN0c1YkY2xhc3OjERITgAKAA4AEoxUWF4AF
+			gAaACIAOVHR5cGVUcm93c1RrZXlzXxAmU2VsZWN0aW9uRGV0YWls
+			VHlwZVByaW1hcnlLZXllZERldGFpbHPTDQ4PHh8goKCAB9IiIyQl
+			WiRjbGFzc25hbWVYJGNsYXNzZXNfEBNOU011dGFibGVEaWN0aW9u
+			YXJ5oyQmJ1xOU0RpY3Rpb25hcnlYTlNPYmplY3TSDg8pLaMqKyyA
+			CYALgAyADdIPLzAxWU5TLnN0cmluZ4AKVmVtcF9ub9IiIzM0XxAP
+			TlNNdXRhYmxlU3RyaW5nozM1NlhOU1N0cmluZ1hOU09iamVjdNIP
+			LzA5gApVdGl0bGXSDy8wPIAKWWZyb21fZGF0ZdIiIz4/Xk5TTXV0
+			YWJsZUFycmF5oz5AQVdOU0FycmF5WE5TT2JqZWN00iIjJkOiJkRY
+			TlNPYmplY3QACAARABoAJAApADIANwBJAEwAUQBTAGUAawByAHoA
+			hQCMAJAAkgCUAJYAmgCcAJ4AoACiAKcArACxANoA4QDiAOMA5QDq
+			APUA/gEUARgBJQEuATMBNwE5ATsBPQE/AUQBTgFQAVcBXAFuAXIB
+			ewGEAYkBiwGRAZYBmAGiAacBtgG6AcIBywHQAdMAAAAAAAACAQAA
+			AAAAAABFAAAAAAAAAAAAAAAAAAAB3A==
+			</data>
+			<key>contentSortColIsAsc</key>
+			<true/>
+			<key>contentViewport</key>
+			<string>{{0, 0}, {690, 591}}</string>
+			<key>isToolbarVisible</key>
+			<true/>
+			<key>queries</key>
+			<string>USE employees;
+
+# 2. Using the example in the Associative Table Joins section as a guide, write a query that shows each department along with the name of the current manager for that department.
+
+select dept_name as "Department Name", concat(first_name," ",last_name) as "Manager Name"
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no
+where dept_manager.to_date &gt; curdate()
+order by dept_name;
+
+
+# 3. Find the name of all departments currently managed by women.
+
+select dept_name as "Department Name", concat(first_name," ",last_name) as "Manager Name"
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no
+where dept_manager.to_date &gt; curdate()
+AND employees.gender = "F"
+order by dept_name;
+
+
+# 4. Find the current titles of employees currently working in the Customer Service department.
+
+# GROUP BY title, titles.emp_no -&gt; dept_emp.emp_no, dept_emp.dept-no -&gt; departments.dept_no, WHERE = dept_name = customer service AND currenly working
+
+select title as "Title", count(*) as "Count"
+from titles
+join dept_emp on dept_emp.emp_no = titles.emp_no
+join departments on departments.dept_no = dept_emp.dept_no
+where dept_name = "Customer Service"
+	and
+	titles.to_date &gt; curdate()
+	and
+	dept_emp.to_date &gt; curdate()
+group by title;
+
+
+# 5. Find the current salary of all current managers.
+
+select dept_name as "Department Name", concat(first_name," ",last_name) as "Name", salary as "Salary"
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no
+# JOIN salary.emp_no to employee.emp_no
+join salaries on employees.emp_no = salaries.emp_no
+where dept_manager.to_date &gt; curdate()
+	and
+	salaries.to_date &gt; curdate()
+order by dept_name;
+
+
+# 6. Find the number of current employees in each department.
+
+</string>
+			<key>table</key>
+			<string>titles</string>
+			<key>view</key>
+			<string>SP_VIEW_CUSTOMQUERY</string>
+			<key>windowVerticalDividerPosition</key>
+			<real>226</real>
+		</dict>
+	</dict>
+	<key>encrypted</key>
+	<false/>
+	<key>format</key>
+	<string>connection</string>
+	<key>queryFavorites</key>
+	<array/>
+	<key>queryHistory</key>
+	<array>
+		<string># 5. Find the current salary of all current managers.
+
+select dept_name as "Department Name", concat(first_name," ",last_name) as "Name", salary as "Salary"
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no
+# JOIN salary.emp_no to employee.emp_no
+join salaries on employees.emp_no = salaries.emp_no
+where dept_manager.to_date &gt; curdate()
+	and
+	salaries.to_date &gt; curdate()
+order by dept_name</string>
+		<string># 5. Find the current salary of all current managers.
+
+select dept_name as "Department Name", concat(first_name," ",last_name) as "Name", salary as "Salary"
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no
+# JOIN salary.emp_no to employee.emp_no
+join salaries on employees.emp_no = salaries.emp_no
+where dept_manager.to_date &gt; curdate()
+	and
+	salaries.to_date &gt; curdate()</string>
+		<string># 4. Find the current titles of employees currently working in the Customer Service department.
+
+# GROUP BY title, titles.emp_no -&gt; dept_emp.emp_no, dept_emp.dept-no -&gt; departments.dept_no, WHERE = dept_name = customer service AND currenly working
+
+select title as "Title", count(*) as "Count"
+from titles
+join dept_emp on dept_emp.emp_no = titles.emp_no
+join departments on departments.dept_no = dept_emp.dept_no
+where dept_name = "Customer Service"
+	and
+	titles.to_date &gt; curdate()
+	and
+	dept_emp.to_date &gt; curdate()
+group by title</string>
+		<string># 4. Find the current titles of employees currently working in the Customer Service department.
+
+# GROUP BY title, titles.emp_no -&gt; dept_emp.emp_no, dept_emp.dept-no -&gt; departments.dept_no, WHERE = dept_name = customer service AND currenly working
+
+select title as "Title", count(*) as "Count"
+from titles
+join dept_emp on dept_emp.emp_no = titles.emp_no
+join departments on departments.dept_no = dept_emp.dept_no
+where dept_name = "Customer Service"
+	and
+	titles.to_date &gt; curdate()
+group by title</string>
+		<string># 4. Find the current titles of employees currently working in the Customer Service department.
+
+# GROUP BY title, titles.emp_no -&gt; dept_emp.emp_no, dept_emp.dept-no -&gt; departments.dept_no, WHERE = dept_name = customer service AND currenly working
+
+select title as "Title", count(*)
+from titles
+join dept_emp on dept_emp.emp_no = titles.emp_no
+join departments on departments.dept_no = dept_emp.dept_no
+where dept_name = "Customer Service"
+	and
+	titles.to_date &gt; curdate()
+group by title</string>
+		<string># 4. Find the current titles of employees currently working in the Customer Service department.
+
+# GROUP BY title, titles.emp_no -&gt; dept_emp.emp_no, dept_emp.dept-no -&gt; departments.dept_no, WHERE = dept_name = customer service
+
+select title as "Title", count(*)
+from titles
+join dept_emp on dept_emp.emp_no = titles.emp_no
+join departments on departments.dept_no = dept_emp.dept_no
+where dept_name = "Customer Service"
+group by title</string>
+		<string># 3. Find the name of all departments currently managed by women.
+
+select dept_name as "Department Name", concat(first_name," ",last_name) as "Manager Name"
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no
+where dept_manager.to_date &gt; curdate()
+AND employees.gender = "F"
+order by dept_name</string>
+		<string># Using the example in the Associative Table Joins section as a guide, write a query that shows each department along with the name of the current manager for that department.
+
+select dept_name as "Department Name", concat(first_name," ",last_name) as "Manager Name"
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no
+where dept_manager.to_date &gt; curdate()
+order by dept_name</string>
+		<string># Using the example in the Associative Table Joins section as a guide, write a query that shows each department along with the name of the current manager for that department.
+
+select dept_name as "Department Name", concat(first_name," ",last_name) as "Manager Name"
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no
+where dept_manager.to_date &gt; curdate()</string>
+		<string># Using the example in the Associative Table Joins section as a guide, write a query that shows each department along with the name of the current manager for that department.
+
+select dept_name, concat(first_name," ",last_name)
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no
+where dept_manager.to_date &gt; curdate()</string>
+		<string># Using the example in the Associative Table Joins section as a guide, write a query that shows each department along with the name of the current manager for that department.
+
+select *
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no
+where dept_manager.to_date &gt; curdate()</string>
+		<string>select *
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no;
+where dept_manager.to_date &gt; curdate()</string>
+		<string>select *
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no;
+where to_date &gt; curdate()</string>
+		<string>where dept_manager.to_date &gt; currdate()</string>
+		<string># Using the example in the Associative Table Joins section as a guide, write a query that shows each department along with the name of the current manager for that department.
+
+select *
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no</string>
+		<string># Using the example in the Associative Table Joins section as a guide, write a query that shows each department along with the name of the current manager for that department.
+
+select dept_name, concat(first_name," ",last_name)
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no</string>
+		<string># Using the example in the Associative Table Joins section as a guide, write a query that shows each department along with the name of the current manager for that department.
+
+select dept_name, concat(first_name," ",last_name)
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no
+where to_date &gt; currdate()</string>
+		<string># Using the example in the Associative Table Joins section as a guide, write a query that shows each department along with the name of the current manager for that department.
+
+select dept_name, concat(first_name," ",last_name)
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no
+# join emp_no from dept_manager to emp_no from employees
+join employees on dept_manager.emp_no = employees.emp_no
+where employees.to_date &gt; currdate()</string>
+		<string># Using the example in the Associative Table Joins section as a guide, write a query that shows each department along with the name of the current manager for that department.
+
+select *
+from departments 
+# join dept_no from departments to dept_no from dept_manager
+join  dept_manager on departments.dept_no = dept_manager.dept_no</string>
+		<string># RIGHT JOIN
+select *
+from users
+right join roles on roles.id = users.role_id</string>
+	</array>
+	<key>rdbms_type</key>
+	<string>mysql</string>
+	<key>rdbms_version</key>
+	<string>5.7.32-0ubuntu0.18.04.1-log</string>
+	<key>version</key>
+	<integer>1</integer>
+</dict>
+</plist>
