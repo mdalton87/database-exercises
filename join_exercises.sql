@@ -148,7 +148,13 @@ limit 1;
 
 # 10. BONUS:  Find the names of all current employees, their department name, and their current manager's name 
 
-select concat(e.first_name," ",e.last_name) as "Employee Name", dept_name as "Department Name"
+select concat(e.first_name," ",e.last_name) as "Employee Name", dept_name as "Department Name", (
+																									select concat(first_name," ",last_name) 
+																									from departments 
+																									join  dept_manager on departments.dept_no = dept_manager.dept_no
+																									join employees on dept_manager.emp_no = employees.emp_no
+																									where dept_manager.to_date > curdate()
+																								)	as "Manager Name"
 from employees as e
 join salaries as s 
 	on e.emp_no = s.emp_no
@@ -166,8 +172,15 @@ where s.to_date > curdate();
 
 # 11. BONUS:  Who is the highest paid employee within each department.
 
-
-
+select dept_name as "Department", max(salary) as "Highest Salary"
+from departments
+join dept_emp
+	on departments.dept_no = dept_emp.dept_no
+join employees
+	on dept_emp.emp_no = employees.emp_no
+join salaries
+	on employees.emp_no = salaries.emp_no
+where dept_emp.to_date > curdate();
 
 
 
