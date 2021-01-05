@@ -4,10 +4,10 @@ use `join_example_db`;
 
 
 select *
-from users
+from users;
 
 select *
-from roles
+from roles;
 
 # 2. Use join, left join, and right join to combine results from the users and roles tables as we did in the lesson. Before you run each query, guess the expected number of results.
 
@@ -22,10 +22,12 @@ right join roles on roles.id = users.role_id, COUNT(roles);
 
 # 3. Although not explicitly covered in the lesson, aggregate functions like count can be used with join queries. Use count and the appropriate join type to get a list of roles along with the number of users that has the role. Hint: You will also need to use group by in the query.
 
-SELECT users.name, roles.name, count(*)
+SELECT 
+	roles.name as role_name,
+	count(users.name)
 FROM users
-JOIN roles ON users.role_id = roles.id
-GROUP BY roles.name;
+right JOIN roles ON users.role_id = roles.id
+GROUP BY role_name;
 
 
 # 1. use employees db
@@ -36,10 +38,10 @@ USE employees;
 
 select dept_name as "Department Name", concat(first_name," ",last_name) as "Manager Name"
 from departments 
-# join dept_no from departments to dept_no from dept_manager
-join  dept_manager on departments.dept_no = dept_manager.dept_no
-# join emp_no from dept_manager to emp_no from employees
-join employees on dept_manager.emp_no = employees.emp_no
+join  dept_manager 
+	on departments.dept_no = dept_manager.dept_no
+join employees 
+	on dept_manager.emp_no = employees.emp_no
 where dept_manager.to_date > curdate()
 order by dept_name;
 
@@ -48,12 +50,12 @@ order by dept_name;
 
 select dept_name as "Department Name", concat(first_name," ",last_name) as "Manager Name"
 from departments 
-# join dept_no from departments to dept_no from dept_manager
-join  dept_manager on departments.dept_no = dept_manager.dept_no
-# join emp_no from dept_manager to emp_no from employees
-join employees on dept_manager.emp_no = employees.emp_no
+join  dept_manager 
+	on departments.dept_no = dept_manager.dept_no
+join employees 
+	on dept_manager.emp_no = employees.emp_no
 where dept_manager.to_date > curdate()
-AND employees.gender = "F"
+	AND employees.gender = "F"
 order by dept_name;
 
 
@@ -93,7 +95,8 @@ order by dept_name;
 
 select departments.dept_no, dept_name, count(*) as "num_employees"
 from departments
-join dept_emp on departments.dept_no = dept_emp.dept_no
+join dept_emp 
+	on departments.dept_no = dept_emp.dept_no
 where dept_emp.to_date > curdate()
 group by departments.dept_no;
 
@@ -115,7 +118,10 @@ limit 1;
 
 # 8. Who is the highest paid employee in the Marketing department?
 
-select e.first_name, e.last_name, 
+select 
+	e.first_name, 
+	e.last_name, 
+	s.salary 
 from salaries as s
 join dept_emp as de 
 	on s.emp_no = de.emp_no
@@ -148,42 +154,77 @@ limit 1;
 
 # 10. BONUS:  Find the names of all current employees, their department name, and their current manager's name 
 
-select concat(e.first_name," ",e.last_name) as "Employee Name", dept_name as "Department Name", (
-																									select concat(first_name," ",last_name) 
-																									from departments 
-																									join  dept_manager on departments.dept_no = dept_manager.dept_no
-																									join employees on dept_manager.emp_no = employees.emp_no
-																									where dept_manager.to_date > curdate()
-																								)	as "Manager Name"
-from employees as e
-join salaries as s 
-	on e.emp_no = s.emp_no
-join dept_emp as de
-	on de.emp_no = e.emp_no
-join departments as d
-	on de.dept_no = d.dept_no
-join dept_manager as dm
-	on d.dept_no = dm.dept_no
-where s.to_date > curdate();
+SELECT 
+    CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name',
+    d.dept_name AS 'Department Name',
+    CONCAT(managers.first_name, ' ', managers.last_name) AS 'Manager_name'
+FROM dept_emp AS de
+JOIN employees AS e USING(emp_no)
+JOIN departments AS d ON d.dept_no = de.dept_no
+JOIN dept_manager AS dm ON dm.dept_no = d.dept_no 
+    AND dm.to_date > CURDATE()
+JOIN employees AS managers ON managers.emp_no = dm.emp_no
+WHERE de.to_date > CURDATE()
+ORDER BY d.dept_name;
 
+
+# SELF JOIN way to do 10
+
+SELECT 
+	concat(employees.first_name," ",employees.last_name) as "employee_name",
+	dept_name,
+	concat(managers.first_name," ",managers.last_name) as "manager_name"
+FROM employees
+join dept_emp using(emp_no)
+join departments using(dept_no)
+join dept_manager using(dept_no)
+join employees as managers on managers.emp_no = dept_manager.emp_no
+where dept_manager.to_date > curdate()
+	and
+	dept_emp.to_date > curdate();
+;
 
 
 
 
 # 11. BONUS:  Who is the highest paid employee within each department.
 
-select dept_name as "Department", max(salary) as "Highest Salary"
-from departments
-join dept_emp
-	on departments.dept_no = dept_emp.dept_no
-join employees
-	on dept_emp.emp_no = employees.emp_no
-join salaries
-	on employees.emp_no = salaries.emp_no
-where dept_emp.to_date > curdate();
+# 
+# 
+# 
+# 
 
+`select max(salary), dept_name
+from employees as e
+join salaries as s
+	on e.emp_no = s.emp_no
+	and s.to_date > curdate()
+join dept_emp as de
+	on de.emp_no = e.emp_no
+join departments as d
+	on d.dept_no = de.dept_no
+group by dept_name;
+;`
 
-
-
-
-
+select e.first_name, e.last_name, salary, dept_name
+from employees as e
+join salaries as s
+	on e.emp_no = s.emp_no
+	and s.to_date > curdate()
+join dept_emp as de
+	on de.emp_no = e.emp_no
+join departments as d
+	on d.dept_no = de.dept_no
+where salary in (
+		select max(salary)
+		from employees as e
+		join salaries as s
+			on e.emp_no = s.emp_no
+		join dept_emp as de
+			on de.emp_no = e.emp_no
+		join departments as d
+			on d.dept_no = de.dept_no
+		group by dept_name
+) 
+	and s.to_date > curdate()
+	and de.to_date > curdate();
