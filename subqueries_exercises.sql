@@ -4,12 +4,15 @@ use employees;
 
 select concat(first_name," ",last_name) as full_name
 from employees
+join dept_emp on employees.emp_no = dept_emp.emp_no
+	and to_date > curdate()
 where hire_date in (
 		select hire_date
 		from employees
-		where emp_no = 101010 
+		where emp_no = 101010
+		 
 		);
-## 69 rows returned
+## 55 rows returned
 
 # 2. Find all the titles ever held by all current employees with the first name Aamod.
 
@@ -22,19 +25,19 @@ where first_name in (
 		from employees
 		where first_name like "Aamod"
 		)
+	and to_date >curdate()
 group by title;
 
 # 3. How many people in the employees table are no longer working for the company? Give the answer in a comment in your code.
 
-SELECT count(emp_no)
+SELECT count(*)
 FROM employees
-join salaries using(emp_no) 
-WHERE emp_no IN (
+WHERE emp_no not IN (
 				select emp_no
 				from salaries
+				where to_date > curdate()
 				);
-# 85108?
-# 59900?
+# 59900
 
 
 select count(*)
@@ -92,13 +95,15 @@ select count(*)
 from salaries
 where salary >=
 		((select max(salary)
-		from salaries)
+		from salaries
+		where to_date > curdate())
 		-
 		(select stddev(salary)
-		from salaries))
+		from salaries
+		where to_date > curdate()))
 	and 
 	salaries.to_date > curdate();
-# 78
+# 83
 	
 # total number of current salaries
 select count(*)
@@ -127,6 +132,25 @@ where to_date > curdate();
 
 # 0.0346%
 
+# FINAL Simplified
+
+select concat((
+		select count(*)
+		from salaries
+		where salary >=
+			((
+				select 
+				max(salary) - stddev(salary)
+				from salaries
+				where to_date > curdate()
+				)
+			and 
+			salaries.to_date > curdate()
+			) / count(salary)) * 100),"%") as "Percent of people 1-SD from the Top"
+from salaries
+where to_date > curdate();
+
+
 ################################################################################################################################################
 # BONUS:
 ################################################################################################################################################
@@ -147,8 +171,6 @@ where gender in
 	to_date > curdate();
 
 
-
-
 # 2. Find the first and last name of the employee with the highest salary.
 
 select first_name, last_name, salary
@@ -159,8 +181,7 @@ where salary in (
 				from salaries
 				where to_date > curdate()
 				);
-
-
+				
 
 # 3. Find the department name that the employee with the highest salary works in.
 
@@ -174,6 +195,3 @@ where salary in (
 				from salaries
 				where to_date > curdate()
 				);
-
-
-
