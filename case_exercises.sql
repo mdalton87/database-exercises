@@ -13,6 +13,20 @@ join dept_emp using(emp_no);
 
 # 2. Write a query that returns all employee names (previous and current), and a new column 'alpha_group' that returns 'A-H', 'I-Q', or 'R-Z' depending on the first letter of their last name.
 
+
+# Fastest way!
+select
+	case 	when last_name < 'I' then 'A-H'
+			when last_name > 'H' 
+				and last_name < 'R' then 'I-Q'
+			when last_name > 'Q' then 'R-Z'
+			else null
+			end as alpha_group,
+			count(*)
+from employees
+group by alpha_group;
+
+
 select 
 	case 	when last_name REGEXP '^(A|B|C|D|E|F|G|H)' then 'A-H'
 			when last_name REGEXP '^(I|J|K|L|M|N|O|P|Q)' then 'I-Q'
@@ -45,7 +59,7 @@ CASE
 		ELSE dept_name
 		END AS dept_group,
 	avg(salary) as group_avg_salary
-FROM departments
-join dept_emp using(dept_no)
-join salaries using(emp_no)
+FROM salaries
+join employees_with_departments using(emp_no)
+where to_date > curdate()
 group by dept_group;
