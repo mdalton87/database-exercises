@@ -50,5 +50,120 @@ CREATE TEMPORARY TABLE `payment` (
 select *
 from payment;
 
+drop temporary table payment;
 #Write the SQL necessary to transform the amount column such that it is stored as an integer representing the number of cents of the payment. For example, 1.99 should become 199.
+
+alter table payment add amount2 int;
+update payment set amount2 = amount * 100;
+alter table payment drop column amount;
+alter table payment add amount int;
+update payment set amount = amount2;
+alter table payment drop column amount2;
+
+
+# 3. Find out how the current average pay in each department compares to the overall, historical average pay. 
+# In order to make the comparison easier, you should use the Z-score for salaries. 
+# In terms of salary, what is the best department right now to work for? The worst?
+drop temporary TABLE dept_sal;
+
+create table dept_sal_emp as (
+		select emp_no, salary, salaries.to_date as sal_to, dept_name, dept_emp.to_date as dept_to
+		from employees.employees
+		join employees.dept_emp using(emp_no)
+		join employees.departments using(dept_no)
+		join employees.salaries using(emp_no)
+);
+
+select dept_name
+from dept_sal
+group by dept_name;
+
+use easley_1262;
+
+select *
+from dept_sal;
+
+Alter table dept_sal drop column emp_no,
+					 drop column sal_to,
+					 drop column dept_to;
+
+drop table dept_avg_sal;
+
+# Average salary to each department					 
+create table dept_avg_sal as		 
+	(select dept_name, avg(salary) as Average
+	from dept_sal
+	where dept_name = "Customer Service")
+	UNION
+	(select dept_name, avg(salary)  as Average
+	from dept_sal
+	where dept_name = "Development")
+	UNION
+	(select dept_name, avg(salary)  as Average
+	from dept_sal
+	where dept_name = "Finance")
+	UNION
+	(select dept_name, avg(salary)  as Average
+	from dept_sal
+	where dept_name = "Human Resources")
+	UNION
+	(select dept_name, avg(salary)  as Average
+	from dept_sal
+	where dept_name = "Marketing")
+	UNION
+	(select dept_name, avg(salary)  as Average
+	from dept_sal
+	where dept_name = "Production")
+	UNION
+	(select dept_name, avg(salary)  as Average
+	from dept_sal
+	where dept_name = "Quality Management")
+	UNION
+	(select dept_name, avg(salary)  as Average
+	from dept_sal
+	where dept_name = "Research")
+	UNION
+	(select dept_name, avg(salary)  as Average
+	from dept_sal
+	where dept_name = "Sales");
+
+
+# testing average
+select avg(salary)
+from dept_sal;
+# testing SD
+select stddev(salary)
+from dept_sal;
+
+# adding SD and Historical average to table	
+alter table dept_avg_sal add hist_sd decimal(14,5);
+update dept_avg_sal set hist_sd = (select stddev(salary)
+										from dept_sal);
+										
+alter table dept_avg_sal add avg_hist_sal decimal(14,5);
+update dept_avg_sal set avg_hist_sal = (select avg(salary)
+										from dept_sal);
+										
+										
+alter table dept_avg_sal drop column avg_hist_sal,
+						 drop column hist_sd;
+						
+alter table dept_avg_sal rename column "avg(salary)" "dept_average";
+										
+select *
+from dept_avg_sal;
+
+alter table dept_avg_sal add zscore decimal(14,5);
+update dept_avg_sal set zscore = (select ((Average - avg_hist_sal) / hist_sd)
+from dept_avg_sal2);
+
+select *
+from dept_avg_sal
+order by zscore desc;
+
+select dept_name, ((Average - avg_hist_sal) / hist_sd) as zscore
+from dept_avg_sal
+order by zscore desc;
+
+
 
